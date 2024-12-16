@@ -20,21 +20,24 @@ class PeakDetector:
             self.std_filter[self.lag - 1] = np.std(self.y[0:self.lag]).tolist()
 
     def plot(self):
-        print(self.output)
-        plt.plot(self.y, label='y')
+        if self.influence != 1:
+            plt.plot(self.y, label='unfiltered_y')
+        plt.plot(self.filtered_y, label='y')
         plt.plot(self.avg_filter, label='avg_filter')
         plt.plot(self.std_filter, label='std_filter')
 
-        start = 0
+        start = None
         previous = None
         regions = []
 
         for i in range(len(self.output)):
-            if self.output[i] != previous:
-                if self.output[i] == 1 or self.output == -1:
+            if self.output[i] != previous and previous is not None:
+                if self.output[i] == 1:
                     start = i
-                else:
+
+                if self.output[i] == -1 and start is not None:
                     regions.append((start, i))
+                    start = None
 
             previous = self.output[i]
 
@@ -74,12 +77,15 @@ class PeakDetector:
                 self.output[i] = -1
 
             self.filtered_y[i] = self.influence * self.y[i] + (1 - self.influence) * self.filtered_y[i - 1]
-            self.avg_filter[i] = np.mean(self.filtered_y[(i - self.lag):i])
-            self.std_filter[i] = np.std(self.filtered_y[(i - self.lag):i])
         else:
-            self.output[i] = 0
+            if self.y[i] < self.avg_filter[i - 1]:
+                self.output[i] = -1
+            else:
+                self.output[i] = 0
+
             self.filtered_y[i] = self.y[i]
-            self.avg_filter[i] = np.mean(self.filtered_y[(i - self.lag):i])
-            self.std_filter[i] = np.std(self.filtered_y[(i - self.lag):i])
+
+        self.avg_filter[i] = np.mean(self.filtered_y[(i - self.lag):i])
+        self.std_filter[i] = np.std(self.filtered_y[(i - self.lag):i])
 
         return self.output[i]
