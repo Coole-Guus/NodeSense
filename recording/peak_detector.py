@@ -34,17 +34,18 @@ class PeakDetector:
         self.recorded_regions.append((self.recorded_region_start, len(self.y) - 1))
 
     def plot(self):
-        if self.influence != 1:
-            plt.plot(self.y, label='unfiltered_y')
-        plt.plot(self.filtered_y, label='y')
-        plt.plot(self.avg_filter, label='avg_filter')
-        plt.plot(self.std_filter, label='std_filter')
-
-        for region in self.recorded_regions:
-            plt.axvspan(region[0], region[1], color='g', alpha=0.1)
-
-        plt.legend()
-        plt.show()
+        pass
+        # if self.influence != 1:
+        #     plt.plot(self.y, label='unfiltered_y')
+        # plt.plot(self.filtered_y, label='y')
+        # plt.plot(self.avg_filter, label='avg_filter')
+        # plt.plot(self.std_filter, label='std_filter')
+        #
+        # for region in self.recorded_regions:
+        #     plt.axvspan(region[0], region[1], color='g', alpha=0.1)
+        #
+        # plt.legend()
+        # plt.show()
 
     def add_value(self, new_value):
         self.y.append(new_value)
