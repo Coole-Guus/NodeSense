@@ -1,3 +1,5 @@
+from typing import Optional, Tuple
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,12 +14,24 @@ class PeakDetector:
         self.threshold: float = threshold
         self.influence: float = influence
 
+        self.recorded_region_start: Optional[int] = None
+        self.recorded_regions: list[Tuple[int, int]] = []
+
         self.avg_filter: list[float] = [0] * len(self.y)
         self.std_filter: list[float] = [0] * len(self.y)
 
         if len(self.y) > self.lag:
             self.avg_filter[self.lag - 1] = np.mean(self.y[0:self.lag]).tolist()
             self.std_filter[self.lag - 1] = np.std(self.y[0:self.lag]).tolist()
+
+    def mark_start_recording(self):
+        self.recorded_region_start = len(self.y) - 1
+
+    def mark_end_recording(self):
+        if self.recorded_region_start is None:
+            return
+
+        self.recorded_regions.append((self.recorded_region_start, len(self.y) - 1))
 
     def plot(self):
         if self.influence != 1:
@@ -26,22 +40,7 @@ class PeakDetector:
         plt.plot(self.avg_filter, label='avg_filter')
         plt.plot(self.std_filter, label='std_filter')
 
-        start = None
-        previous = None
-        regions = []
-
-        for i in range(len(self.output)):
-            if self.output[i] != previous and previous is not None:
-                if self.output[i] == 1:
-                    start = i
-
-                if self.output[i] == -1 and start is not None:
-                    regions.append((start, i))
-                    start = None
-
-            previous = self.output[i]
-
-        for region in regions:
+        for region in self.recorded_regions:
             plt.axvspan(region[0], region[1], color='g', alpha=0.1)
 
         plt.legend()

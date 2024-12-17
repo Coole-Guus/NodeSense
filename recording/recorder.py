@@ -47,22 +47,23 @@ class Recorder:
                 data = self.stream.read(self.chunk_size, exception_on_overflow=False)
 
                 rms = audioop.rms(data, self.num_channels)
-                # amp_peak = np.max(np.abs(np.frombuffer(data, dtype=np.int16)))
-
                 peak_detection_value = rms
+
+                # amp_peak = np.max(np.abs(np.frombuffer(data, dtype=np.int16)))
                 # peak_detection_value = amp_peak
 
                 # Prints root-mean-square, decibel and absolute peak
                 # print(rms, 20 * np.log10(rms / 32768) if rms > 0 else -np.inf, amp_peak)
 
-                out = self.peak_detector.add_value(peak_detection_value)
+                peak_value = self.peak_detector.add_value(peak_detection_value)
 
-                if out == 1:
+                if peak_value == 1:
                     if not is_recording:
+                        self.peak_detector.mark_start_recording()
                         print("Peak detected.")
                     is_recording = True
                     should_stop_recording = False
-                elif out == -1:
+                elif peak_value == -1:
                     should_stop_recording = True
 
                 if is_recording:
@@ -73,6 +74,7 @@ class Recorder:
 
                 if should_stop_recording and is_recording and recorded_chunks >= self.min_recorded_chunks:
                     print("Peak ended.")
+                    self.peak_detector.mark_end_recording()
                     self.classifier.classify(recorded_data, self.sample_rate)
                     recorded_data = b''
                     is_recording = False
