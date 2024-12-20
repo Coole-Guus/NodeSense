@@ -19,7 +19,7 @@ class Recorder:
         self.format = pyaudio.paInt16
         self.num_channels = 1
         self.sample_rate = 44100
-        self.min_recorded_chunks = 30  # roughly 1.5 seconds (30 * 2048 = 122880 / 44100 = ~3)
+        self.min_recorded_chunks = 30
 
         self.recorder = pyaudio.PyAudio()
         self.peak_detector = PeakDetector([], lag=10, threshold=5, influence=1)
@@ -43,22 +43,11 @@ class Recorder:
             should_stop_recording = False
             recorded_data = b''
 
-            # subtracted_chunks = 0
-
             while True:
                 data = self.stream.read(self.chunk_size, exception_on_overflow=False)
 
                 rms = audioop.rms(data, self.num_channels)
                 peak_detection_value = rms
-
-                # In noisy environments, root-mean-square might not be the best option
-                # peak amplitude might be better, but requires tweaking the peak_detection
-                # parameters as well.
-                # amp_peak = np.max(np.abs(np.frombuffer(data, dtype=np.int16)))
-                # peak_detection_value = amp_peak
-
-                # Prints root-mean-square, decibel and absolute peak
-                # print(rms, 20 * np.log10(rms / 32768) if rms > 0 else -np.inf, amp_peak)
 
                 peak_value = self.peak_detector.add_value(peak_detection_value)
 
@@ -68,9 +57,6 @@ class Recorder:
                         print("Peak detected.")
                     is_recording = True
                     should_stop_recording = False
-                    # recorded_samples = len(recorded_data) / (16 / 8)
-                    # recorded_chunks = recorded_samples / self.chunk_size
-                    # subtracted_chunks = recorded_chunks
                 elif peak_value == -1:
                     should_stop_recording = True
 
@@ -78,7 +64,6 @@ class Recorder:
                     recorded_data += data
 
                 recorded_samples = len(recorded_data) / (16 / 8)
-                # recorded_chunks = (recorded_samples / self.chunk_size) - subtracted_chunks
                 recorded_chunks = (recorded_samples / self.chunk_size)
 
                 if should_stop_recording and is_recording and recorded_chunks >= self.min_recorded_chunks:
@@ -88,7 +73,6 @@ class Recorder:
                     recorded_data = b''
                     is_recording = False
                     should_stop_recording = False
-                    # subtracted_chunks = 0
 
         except KeyboardInterrupt:
             self.stream.stop_stream()

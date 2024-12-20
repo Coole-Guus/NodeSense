@@ -101,8 +101,6 @@ def preprocess_function(examples):
     return inputs
 
 ## First run: Map and save, otherwise, use the one loaded from disk
-# processed_dataset = dataset.map(preprocess_function, batch_size=16, batched=True)
-# processed_dataset.save_to_disk("testje")
 processed_dataset = load_from_disk("testje")
 label_list = processed_dataset["train"].features["label"].names
 num_labels = len(label_list)
