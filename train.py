@@ -16,8 +16,7 @@ import evaluate
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 
 # Hardcoded path (please change for yourself)
-# TODO: Maybe make an argument parser?
-DATA_DIR = "/home/rajeck/sound_datasets/urbansound8k"
+DATA_DIR = "/path_to_urbansound8k"
 CSV_PATH = os.path.join(DATA_DIR, "metadata/UrbanSound8K.csv")
 SAMPLE_RATE = 16000
 MAX_LENGTH = 64000  # 64000 = 4 seconds at the 16Khz sample rate
