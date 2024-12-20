@@ -3,6 +3,10 @@ This repository provides the implementation for the proposed NodeSense urban sou
 For the peak detection section and demo of the code can be found in the ./recording/ file. 
 For the model training we provide the train.py in the root of the repository.
 
+## model
+the model should be put in the root of the folder. downloadable from:
+https://drive.google.com/file/d/1JSx-iyr4a5NwXYi3dmYKllkGHRAnN6Ke/view?usp=sharing
+
 ## Peak detection
 The peak detection/demo application can be run using the following commands.
 ```bash
